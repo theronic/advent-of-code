@@ -10,17 +10,14 @@
     (map vec)
     (vec)))
 
-(defn helper [a b]
-  (cond (= a b) b
-        (< a b) (inc a)
-        (> a b) (dec a)))
-
 (defn fill-line
   "Returns a lazy seq of coordinates from [a b] until [c d] is reached."
   [[[x1 y1] [x2 y2]]]
   (cons [x1 y1]
-    (if (not= [x1 y1] [x2 y2])
-      (lazy-seq (fill-line [[(helper x1 x2) (helper y1 y2)] [x2 y2]])))))
+    (when (not= [x1 y1] [x2 y2])
+      (lazy-seq (fill-line
+                  [(mapv #(+ %1 (.compareTo %2 %1)) [x1 y1] [x2 y2])
+                   [x2 y2]])))))
 
 (defn solve [filter-fn path]
   (with-open [rdr (io/reader path)]
