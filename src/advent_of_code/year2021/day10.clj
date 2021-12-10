@@ -4,19 +4,19 @@
 
 (defn parse
   "Returns first invalid char or stack if line is incomplete."
-  [stack [token & tokens]]
-  (if token
-    (if-let [expected ({\( \), \[ \], \{ \}, \< \>} token)]
-      (parse (conj stack expected) tokens)
-      (if (= token (peek stack))
-        (parse (pop stack) tokens)
-        token))
-    stack))
+  [tokens]
+  (reduce (fn [stack token]
+            (if-let [expected ({\( \), \[ \], \{ \}, \< \>} token)]
+              (conj stack expected)
+              (if (= token (peek stack))
+                (pop stack)
+                (reduced token))))
+    [] tokens))
 
 (defn part1 [path]
   (with-open [rdr (io/reader path)]
     (->> (line-seq rdr)
-      (map #(parse [] %))
+      (map parse)
       (filter char?)
       (map {\) 3, \] 57, \} 1197, \> 25137})
       (reduce +))))
@@ -24,7 +24,7 @@
 (defn part2 [path]
   (with-open [rdr (io/reader path)]
     (let [scores (->> (line-seq rdr)
-                   (map #(parse [] %))
+                   (map parse)
                    (remove char?)
                    (map reverse) ;; order matters in scoring
                    (map #(reduce (fn [acc token]
