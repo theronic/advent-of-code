@@ -11,7 +11,7 @@
               (if (= token (peek stack))
                 (pop stack)
                 (reduced token))))
-    [] tokens))
+    '() tokens))
 
 (defn part1 [path]
   (with-open [rdr (io/reader path)]
@@ -26,7 +26,6 @@
     (let [scores (->> (line-seq rdr)
                    (map parse)
                    (remove char?)
-                   (map reverse) ;; order matters in scoring
                    (map #(reduce (fn [acc token]
                                    (+ (* 5 acc) ({\) 1, \] 2, \} 3, \> 4} token)))
                            0 %))
