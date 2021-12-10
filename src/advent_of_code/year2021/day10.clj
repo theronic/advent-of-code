@@ -25,7 +25,7 @@
   (with-open [rdr (io/reader path)]
     (let [scores (->> (line-seq rdr)
                    (map parse)
-                   (remove char?)
+                   (filter list?)
                    (map #(reduce (fn [acc token]
                                    (+ (* 5 acc) ({\) 1, \] 2, \} 3, \> 4} token)))
                            0 %))
