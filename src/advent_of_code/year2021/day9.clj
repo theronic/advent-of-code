@@ -18,8 +18,7 @@
 (defn lowest? [grid [y x]]
   (let [v (get-in grid [y x])]
     (->> (adjacent [y x])
-      (map #(get-in grid %))
-      (remove nil?)
+      (map #(get-in grid % 9))
       (every? #(< v %)))))
 
 (defn part1 [grid]
@@ -33,8 +32,7 @@
   (loop [frontier [start]
          visited  #{start}]
     (if-let [loc (peek frontier)]
-      (let [successors (->> (adjacent loc)
-                         (remove #(contains? #{9 nil} (get-in grid %))))]
+      (let [successors (->> (adjacent loc) (remove (comp #(>= % 9) #(get-in grid % 9))))]
         (recur
           (apply conj (pop frontier) (remove visited successors))
           (apply conj visited successors)))
