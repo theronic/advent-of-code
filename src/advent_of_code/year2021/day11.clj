@@ -37,11 +37,11 @@
           (update-in-grid grid' inc neighbours)))
       [flashed grid'])))
 
-(defn step-seq [grid]
-  (let [grid'  (S/transform [S/ALL S/ALL] inc grid)
-        [flashed grid] (next-flash #{} grid')
-        grid'' (update-in-grid grid (fn [_] 0) flashed)]
-    (cons grid'' (lazy-seq (step-seq grid'')))))
+(defn step-seq [grid0]
+  (let [grid1 (S/transform [S/ALL S/ALL] inc grid0)
+        [flashed grid2] (next-flash #{} grid1)
+        grid3 (update-in-grid grid2 (fn [_] 0) flashed)]
+    (cons grid3 (lazy-seq (step-seq grid3)))))
 
 (defn part1 [path]
   (let [grid (parse-grid path)]
