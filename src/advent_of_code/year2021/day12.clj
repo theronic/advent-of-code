@@ -15,21 +15,20 @@
 
 (defn small-cave? [node] (every? #(Character/isLowerCase %) node))
 
-(defn- dfs [graph goal prune-neighbours]
+(defn make-dfs [graph goal prune-neighbours]
   (fn search [path visited]
-    (let [current (peek path)]
-      (if (= goal (peek path))
-        [path]
-        (->> (peek path)
-          (get graph)
-          (remove #{"start"})
-          (prune-neighbours visited)
-          (mapcat #(search (conj path %)
-                     (cond-> visited
-                       (small-cave? %) (update % (fnil inc 0))))))))))
+    (if (= goal (peek path))
+      [path]
+      (->> (peek path)
+        (get graph)
+        (remove #{"start"})
+        (prune-neighbours visited)
+        (mapcat #(search (conj path %)
+                   (cond-> visited
+                     (small-cave? %) (update % (fnil inc 0)))))))))
 
 (defn find-paths [graph goal prune-neighbours]
-  ((dfs graph goal prune-neighbours)
+  ((make-dfs graph goal prune-neighbours)
    ["start"] {}))
 
 (defn solve [path prune-neighbours]
@@ -38,22 +37,22 @@
       (find-paths graph "end" prune-neighbours))))
 
 (defn part1 [path]
-  (solve path (fn [visited neighbours]
-                (remove #(contains? visited %) neighbours))))
+  (count (solve path (fn [visited neighbours]
+                       (remove #(contains? visited %) neighbours)))))
 
 (defn part2 [path]
-  (solve path (fn [visited neighbours]
-                (if (some #(> % 1) (vals visited))
-                  (remove #(contains? visited %) neighbours)
-                  neighbours))))
+  (count (solve path (fn [visited neighbours]
+                       (if (some #(> % 1) (vals visited))
+                         (remove #(contains? visited %) neighbours)
+                         neighbours)))))
 
 (comment
-  (count (part1 "resources/2021/day12/demo.in"))
-  (count (part1 "resources/2021/day12/demo2.in"))
-  (count (part1 "resources/2021/day12/demo3.in"))
-  (count (part1 "resources/2021/day12/problem.in"))
+  (part1 "resources/2021/day12/demo.in")
+  (part1 "resources/2021/day12/demo2.in")
+  (part1 "resources/2021/day12/demo3.in")
+  (part1 "resources/2021/day12/problem.in")
 
-  (count (part2 "resources/2021/day12/demo.in"))
-  (count (part2 "resources/2021/day12/demo2.in"))
-  (count (part2 "resources/2021/day12/demo3.in"))
-  (count (part2 "resources/2021/day12/problem.in")))
+  (part2 "resources/2021/day12/demo.in")
+  (part2 "resources/2021/day12/demo2.in")
+  (part2 "resources/2021/day12/demo3.in")
+  (part2 "resources/2021/day12/problem.in"))
