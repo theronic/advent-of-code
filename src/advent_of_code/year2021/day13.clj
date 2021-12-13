@@ -1,7 +1,7 @@
 (ns advent-of-code.year2021.day13
- (:require [clojure.java.io :as io]
-           [clojure.string :as string]
-           [com.rpl.specter :as S]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string]
+            [com.rpl.specter :as S]))
 
 (defn parse-point [line]
   (mapv #(Long/parseLong %) (rest (re-find #"(\d+),(\d+)" line))))
