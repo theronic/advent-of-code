@@ -5,7 +5,7 @@
 
 (defn parse [path]
   (with-open [rdr (io/reader path)]
-    (S/transform [S/ALL S/ALL] #(- (int %) 48) (vec (map vec (line-seq rdr))))))
+    (S/transform [S/ALL S/ALL] #(- (int %) 48) (mapv vec (line-seq rdr)))))
 
 (defn adjacent [[y x]]
   (map #(mapv + [y x] %) [[-1 0] [0 -1] [0 1] [1 0]]))
