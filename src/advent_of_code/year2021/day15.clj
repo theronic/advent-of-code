@@ -34,14 +34,14 @@
       r)))
 
 (defn solve [path lookup-fn]
-  (let [grid (-> (parse path))
+  (let [grid (parse path)
         f    (fn [[y x]]
                (->> (adjacent [y x])
                  (filter #(lookup-fn grid %))
                  (map (fn [loc] [loc (lookup-fn grid loc)]))
                  (into {})))]
     (-> (sort-by first (dijkstra [0 0] f))
-      (last) ;; right-bottom most cell happens to be last.
+      (last)                                                ;; right-bottom most cell happens to be last.
       (second))))
 
 (defn part1 [path] (solve path get-in))
