@@ -55,4 +55,37 @@
   (part2 "resources/2021/day12/demo.in")
   (part2 "resources/2021/day12/demo2.in")
   (part2 "resources/2021/day12/demo3.in")
-  (part2 "resources/2021/day12/problem.in"))
+  (part2 "resources/2021/day12/problem.in")
+
+  (defn mydfs [graph start goal]
+    (fn search [path visited]
+      (if (= goal (peek path))
+        [path]
+        (->> (peek path)
+          (get graph)
+          (remove visited)
+          (mapcat #(search (conj path %) (conj visited %)))))))
+
+  (defn invert-graph [g]
+    (for [[k vs] g]
+      (into []
+        (for [x vs]
+          [x k]))))
+
+  (for [[k vs] {:a #{:b :c}}]
+    (into [] cat
+      (for [x vs]
+        [x k])))
+
+  (let [graph {:a #{:b}
+               :b #{:c :d}
+               :c #{:e}
+               :d #{:f}
+               :f #{:d}
+               :e #{:d}}])
+  ((mydfs {:a #{:b}
+           :b #{:c :d}
+           :c #{:e}
+           :d #{:f}
+           :f #{:d}
+           :e #{:d}} :a :d) [:a] #{}))

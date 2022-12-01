@@ -8,6 +8,8 @@
   `(with-open [~sym (io/reader ~x)]
      ~@body))
 
+(defn sum [coll] (reduce + coll))
+
 (comment
   (macroexpand '(with-open [rdr (io/reader "abc")]
                   rdr))

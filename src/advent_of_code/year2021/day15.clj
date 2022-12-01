@@ -48,7 +48,66 @@
 
 (defn part2 [path] (solve path lookup))
 
+;(defn search-A*
+;  ([graph state] (search-A* graph state 0 []))
+;  ([graph state current-cost path]
+;   (if (= goal state)
+;     (let [path (conj path state)]
+;       [path current-cost])
+;     (if (not (empty? (get graph state)))
+;       (let [costs (get-costs state current-cost)
+;             next-state (get-next-state state costs)]
+;         (recur next-state (get-real-cost current-cost state next-state) (conj path state)))))))
+
+(defn pred->path
+  "Determine the path to GOAL from the map of predecessors PRED."
+  [pred goal]
+  (loop [node goal, path ()]
+    (if (contains? pred node)
+      (recur (pred node) (cons node path))
+      (cons node path))))
+
+(defn expand
+  [node h [open g pred] succ cost]
+  (let [g-succ (+ (g node) cost)]
+    (if (and (contains? open succ)
+          (>= g-succ (g succ)))
+      [open g pred]
+      [(assoc open succ (+ g-succ (h succ)))
+       (assoc g succ g-succ)
+       (assoc pred succ node)])))
+
+(defn a*
+  "Determine the shortest path from START to GOAL in graph GRAPH
+with heuristic cost function H. GRAPH format is {from {to cost}}."
+  [start goal graph h]
+  (loop [open   (priority-map start 0)
+         closed ()
+         g      {start 0}
+         pred   {}]
+    (if (empty? open)
+      :no-path-found
+      (let [node (key (peek open))]
+        (if (= node goal)
+          [:path-found (pred->path pred goal) (g goal)]
+          (let [successors (apply dissoc (graph node) closed)
+                [open* g* pred*] (reduce-kv (partial expand node h)
+                                   [(pop open) g pred]
+                                   successors)]
+            (recur open* (conj closed node) g* pred*)))))))
+
+
 (comment
+
+  (a* :a :f
+    {:a {:b 5 :c 6}
+     :b {:c 7 :d 8 :e 9}
+     :e {:f 10}}
+    (fn [x] 10))
+
+  ((juxt identity {:a 5}) :a)
+
+
   (part1 "resources/2021/day15/demo.in")
   (part1 "resources/2021/day15/problem.in")
   (part2 "resources/2021/day15/demo.in")

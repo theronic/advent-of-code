@@ -3,32 +3,32 @@
             [clojure.string :as string]))
 
 (defn parse-rule [line]
-  (let [[_ k v] (re-find #"(.+) -> (.+)" line)]
-    [(vec k) (first v)]))
+  (let [[_ pair [v]] (re-find #"(.+) -> (.+)" line)
+        [a b] pair]
+    [[a b] [[a v] [v b]]]))
 
-(defn next-step [rules [letters fs]]
-  (reduce (fn [[letters acc :as prev] [pair cnt]]
-            (if (pos? cnt)
-              (if-let [v (get rules pair)]
-                [(update letters v (fnil (partial + cnt) 0))
-                 (let [[a b] pair]
-                   (-> acc
-                     (update pair (fnil - 0) cnt)
-                     (update [a v] (fnil + 0) cnt)
-                     (update [v b] (fnil + 0) cnt)))]
-                prev)
-              prev))
-    [letters fs] fs))
+(defn apply-rules [rules init]
+  (reduce (fn [acc [pair cnt]]
+            (if-let [new (get rules pair)]
+              (if (pos? cnt)
+                (merge-with +
+                  (update acc pair - cnt)
+                  (into {} (map (fn [x] [x cnt]) new)))
+                acc)
+              acc))
+    init init))
 
 (defn solve [n path]
   (with-open [rdr (io/reader path)]
     (let [[template _ & more] (doall (line-seq rdr))
           rules   (into {} (map parse-rule more))
-          letters (frequencies template)
-          pairs   (frequencies (map vec (partition 2 1 template)))
-          [output _] (nth (iterate (partial next-step rules) [letters pairs]) n)
-          vs      (vals output)]
-      (- (apply max vs) (apply min vs)))))
+          init    (frequencies (conj (map vec (partition 2 1 template)) [(last template)]))]
+      (->> (nth (iterate (partial apply-rules rules) init) n)
+        (map (fn [[ks cnt]] {(first ks) cnt}))
+        (apply merge-with +)
+        (vals)
+        (apply (juxt max min))
+        (apply -)))))
 
 (defn part1 [path] (solve 10 path))
 
@@ -39,4 +39,4 @@
   (part1 "resources/2021/day14/problem.in")
 
   (part2 "resources/2021/day14/demo.in")
-  (part2 "resources/2021/day14/problem.in"))
+  (time (part2 "resources/2021/day14/problem.in")))

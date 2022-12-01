@@ -55,7 +55,9 @@
       (render-grid))))
 
 (comment
+  (part1 "resources/2021/day13/hard.in")
   (part1 "resources/2021/day13/demo.in")
   (part1 "resources/2021/day13/problem.in")
   (print (part2 "resources/2021/day13/demo.in"))
+  (print (part2 "resources/2021/day13/hard.in"))
   (print (part2 "resources/2021/day13/problem.in")))
