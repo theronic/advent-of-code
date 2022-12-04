@@ -2,8 +2,9 @@
   (:require [com.rpl.specter :as S]
             [clojure.string :as string]))
 
-(defn parse-pair [xs]
-  (->> (map #(string/split % #"-") xs)
+(defn parse-line [line]
+  (->> (string/split line #",")
+    (map #(string/split % #"-"))
     (S/transform [S/ALL S/ALL] #(Integer/parseInt %))
     (S/transform [S/ALL S/LAST] inc) ;; inclusive range end.
     (map #(apply range %))
@@ -12,8 +13,7 @@
 (defn solve [f path]
   (->> (slurp path)
     (string/split-lines)
-    (map #(string/split % #","))
-    (map parse-pair)
+    (map parse-line)
     (filter f)
     (count)))
 
