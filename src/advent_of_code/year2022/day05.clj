@@ -8,14 +8,14 @@
   (if-some [[_ n from to] (re-find #"move (\d+) from (.) to (.)" line)]
     [(Integer/parseInt n) from to]))
 
-(defn part1-move [head stack] (into stack head))
-(defn part2-move [head stack] (concat head stack))
+(defn part1-move [stack head] (into stack head))
+(defn part2-move [stack head] (concat head stack))
 
 (defn move [move-fn stacks n from to]
   (let [[head tail] (split-at n (stacks from))]
     (-> stacks
       (assoc from tail)
-      (update to (partial move-fn head)))))
+      (update to move-fn head))))
 
 (defn pad-space [s] (str s " "))
 
