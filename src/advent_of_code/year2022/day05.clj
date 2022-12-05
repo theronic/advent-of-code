@@ -9,17 +9,14 @@
   (if-some [[_ n from to] (re-find #"move (\d+) from (.) to (.)" line)]
     [(Integer/parseInt n) from to]))
 
-(defn part1-move [stacks n from to]
-  (let [[head tail] (split-at n (stacks from))]
-    (->> stacks
-      (S/setval [from] tail)
-      (S/transform [to] #(into % head)))))
+(defn part1-move [head stack] (into stack head))
+(defn part2-move [head stack] (concat head stack))
 
-(defn part2-move [stacks n from to]
+(defn move [move-fn stacks n from to]
   (let [[head tail] (split-at n (stacks from))]
     (->> stacks
       (S/setval [from] tail)
-      (S/transform [to] #(concat head %)))))
+      (S/transform [to] (partial move-fn head)))))
 
 (defn pad-space [s] (str s " "))
 
@@ -31,17 +28,15 @@
                            (string/split-lines (slurp path)))
         labels  (last stacks)
         stacks  (butlast stacks)
-        parsed  (->> stacks
-                  (map pad-space)
-                  (map parse-line))
+        parsed  (map (comp parse-line pad-space) stacks)
         longest (apply max (map count parsed))
         padded  (map #(pad-coll % longest nil) parsed)
         cols    (map #(drop-while nil? %) (apply map list padded))
         labels  (map string/trim (string/split labels #"   "))
         moves   (map parse-move moves)
         grid    (zipmap labels cols)
-        solved  (reduce (fn [acc [n from to :as move]]
-                          (move-fn acc n from to)) grid moves)]
+        solved  (reduce (fn [acc [n from to]]
+                          (move move-fn acc n from to)) grid moves)]
     (->> (map #(solved %) labels)
       (map first)
       (string/join))))
