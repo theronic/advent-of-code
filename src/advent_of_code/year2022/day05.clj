@@ -1,6 +1,5 @@
 (ns advent-of-code.year2022.day05
-  (:require [clojure.string :as string]
-            [com.rpl.specter :as S]))
+  (:require [clojure.string :as string]))
 
 (defn parse-line [line]
   (map second (re-seq #"\[(.)\] |    " line)))
@@ -14,9 +13,9 @@
 
 (defn move [move-fn stacks n from to]
   (let [[head tail] (split-at n (stacks from))]
-    (->> stacks
-      (S/setval [from] tail)
-      (S/transform [to] (partial move-fn head)))))
+    (-> stacks
+      (assoc from tail)
+      (update to (partial move-fn head)))))
 
 (defn pad-space [s] (str s " "))
 
