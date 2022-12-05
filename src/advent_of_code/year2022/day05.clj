@@ -1,0 +1,54 @@
+(ns advent-of-code.year2022.day05
+  (:require [clojure.string :as string]
+            [com.rpl.specter :as S]))
+
+(defn parse-line [line]
+  (map second (re-seq #"\[(.)\] |    " line)))
+
+(defn parse-move [line]
+  (if-some [[_ n from to] (re-find #"move (\d+) from (.) to (.)" line)]
+    [(Integer/parseInt n) from to]))
+
+(defn part1-move [stacks n from to]
+  (let [[head tail] (split-at n (stacks from))]
+    (->> stacks
+      (S/setval [from] tail)
+      (S/transform [to] #(into % head)))))
+
+(defn part2-move [stacks n from to]
+  (let [[head tail] (split-at n (stacks from))]
+    (->> stacks
+      (S/setval [from] tail)
+      (S/transform [to] #(concat head %)))))
+
+(defn pad-space [s] (str s " "))
+
+(defn pad-coll [coll n el]
+  (concat coll (repeat (- n (count coll)) el)))
+
+(defn solve [move-fn path]
+  (let [[stacks _ moves] (partition-by string/blank?
+                           (string/split-lines (slurp path)))
+        labels  (last stacks)
+        stacks  (butlast stacks)
+        parsed  (->> stacks
+                  (map pad-space)
+                  (map parse-line))
+        longest (apply max (map count parsed))
+        padded  (map #(pad-coll % longest nil) parsed)
+        cols    (map #(drop-while nil? %) (apply map list padded))
+        labels  (map string/trim (string/split labels #"   "))
+        moves   (map parse-move moves)
+        grid    (zipmap labels cols)
+        solved  (reduce (fn [acc [n from to :as move]]
+                          (move-fn acc n from to)) grid moves)]
+    (->> (map #(solved %) labels)
+      (map first)
+      (string/join))))
+
+(comment
+  (solve part1-move "resources/2022/day05/demo.in")
+  (solve part1-move "resources/2022/day05/problem.in")
+
+  (solve part2-move "resources/2022/day05/demo.in")
+  (solve part2-move "resources/2022/day05/problem.in"))
