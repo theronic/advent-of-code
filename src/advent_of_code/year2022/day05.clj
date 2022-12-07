@@ -25,18 +25,17 @@
 (defn solve [move-fn path]
   (let [[stacks _ moves] (partition-by string/blank?
                            (string/split-lines (slurp path)))
-        labels  (last stacks)
+        labels  (map string/trim (string/split (last stacks) #"   "))
         stacks  (butlast stacks)
         parsed  (map (comp parse-line pad-space) stacks)
         longest (apply max (map count parsed))
         padded  (map #(pad-coll % longest nil) parsed)
         cols    (map #(drop-while nil? %) (apply map list padded))
-        labels  (map string/trim (string/split labels #"   "))
         moves   (map parse-move moves)
         grid    (zipmap labels cols)
         solved  (reduce (fn [acc [n from to]]
                           (move move-fn acc n from to)) grid moves)]
-    (->> (map #(solved %) labels)
+    (->> (map solved #(solved %) labels)
       (map first)
       (string/join))))
 
