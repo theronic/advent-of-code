@@ -32,10 +32,8 @@
   (->> (load-tree path)
     (tree-seq map? vals)
     (remove number?)                                        ;; remove files.
-    (map (juxt tree-sum identity))
-    (filter (fn [[size d]]
-              (<= size 100000)))
-    (map first)
+    (map tree-sum)
+    (filter #(<= % 100000))
     (reduce +)))
 
 (defn part2 [path]
