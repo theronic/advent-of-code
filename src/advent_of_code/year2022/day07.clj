@@ -17,8 +17,8 @@
           (let [[_ size-or-dir filename] (re-find #"(dir|\d+) (.+)" line)]
             (if (= "dir" size-or-dir)
               state                                         ;; dir. we don't mark specially.
-              (let [file  (Integer/parseInt size-or-dir)
-                    tree' (S/setval [path filename] file tree)]
+              (let [size  (Integer/parseInt size-or-dir)
+                    tree' (S/setval [path filename] size tree)]
                 (assoc state :tree tree'))))))
       {:path ["/"] :tree {}})
     (:tree)))
