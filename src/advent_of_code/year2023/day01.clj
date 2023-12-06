@@ -3,7 +3,7 @@
 
 (defn parse [path]
   (with-open [rdr (io/reader path)]
-    (->> (line-seq rdr) (into []))))
+    (into [] (line-seq rdr))))
 
 (def digit? #{\1 \2 \3 \4 \5 \6 \7 \8 \9})
 
@@ -12,7 +12,6 @@
 
 (defn part1 [path]
   (->> (parse path)
-    (doall)
     (map solve)
     (reduce +)))
 
@@ -27,8 +26,6 @@
         "eight" 8
         "nine"  9} term)
     (- (int (first term)) 48)))
-
-(map ->int (map str digit?))
 
 (defn part2-line [line]
   (Long/parseLong
